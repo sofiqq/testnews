@@ -25,7 +25,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class FragmentEverything extends Fragment {
+public class FragmentFavorite extends Fragment {
 
     Preferences preferences;
     private FavoriteAdapter favoriteAdapter;

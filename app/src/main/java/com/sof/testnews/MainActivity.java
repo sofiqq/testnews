@@ -9,7 +9,7 @@ import android.os.PersistableBundle;
 import android.view.MenuItem;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.sof.testnews.fragments.FragmentEverything;
+import com.sof.testnews.fragments.FragmentFavorite;
 import com.sof.testnews.fragments.FragmentTopheadliners;
 
 import butterknife.BindView;
@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 loadFragment(fragmentEverything);
                 break;
             case R.id.page_favorite:
-                FragmentEverything fragmentFavorite = new FragmentEverything();
+                FragmentFavorite fragmentFavorite = new FragmentFavorite();
                 loadFragment(fragmentFavorite);
                 break;
         }

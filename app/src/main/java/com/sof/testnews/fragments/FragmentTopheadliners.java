@@ -5,6 +5,8 @@ import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
@@ -46,6 +48,12 @@ public class FragmentTopheadliners extends Fragment {
 
     @BindView(R.id.rv_top)
     RecyclerView rvNews;
+
+    @BindView(R.id.layout_content)
+    LinearLayout layoutContent;
+
+    @BindView(R.id.layout_loading)
+    FrameLayout layoutLoading;
 
     private static final int PAGE_START = 1;
     private boolean isLoading = false;
@@ -160,6 +168,8 @@ public class FragmentTopheadliners extends Fragment {
         topHeadlinersService.getNews(topic, currentPage).enqueue(new Callback<NewsModel>() {
             @Override
             public void onResponse(Call<NewsModel> call, Response<NewsModel> response) {
+                layoutContent.setVisibility(View.VISIBLE);
+                layoutLoading.setVisibility(View.GONE);
                 int totalResults = response.body().getTotalResults();
                 TOTAL_PAGES = response.body().getTotalResults() / 5;
                 if (totalResults % 5 > 0) TOTAL_PAGES++;
