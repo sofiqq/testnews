@@ -2,4 +2,6 @@
     <string name="app_name">Test News</string>
     <string name="text_menu_top">Top headlines</string>
     <string name="text_menu_all">Everything</string>
+    <string name="save">save this news</string>
+    <string name="favorite">Favorite</string>
 </resources>

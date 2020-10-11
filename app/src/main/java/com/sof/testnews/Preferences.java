@@ -7,7 +7,7 @@ public class Preferences {
 
     final static String FILE_NAME = "preferences";
 
-    final static String PREF_PIN = "pin";
+    final static String PREF_NEWS = "news";
 
     private SharedPreferences preferences;
 
@@ -18,5 +18,15 @@ public class Preferences {
     private SharedPreferences.Editor getEditor() {
         return preferences.edit();
     }
+
+    public void setSavedNews(String json) {
+        getEditor().putString(PREF_NEWS, json).commit();
+    }
+
+    public String getSavedNews() {
+        return preferences.getString(PREF_NEWS, "");
+    }
+
+
 
 }

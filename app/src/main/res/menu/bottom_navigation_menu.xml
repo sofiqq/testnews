@@ -10,4 +10,9 @@
         android:enabled="true"
         android:icon="@drawable/ic_all_news"
         android:title="@string/text_menu_all"/>
+    <item
+        android:id="@+id/page_favorite"
+        android:enabled="true"
+        android:icon="@drawable/ic_favorite"
+        android:title="@string/favorite"/>
 </menu>

@@ -57,6 +57,10 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             case R.id.page_news:
                 loadFragment(fragmentEverything);
                 break;
+            case R.id.page_favorite:
+                FragmentEverything fragmentFavorite = new FragmentEverything();
+                loadFragment(fragmentFavorite);
+                break;
         }
         return true;
     }
