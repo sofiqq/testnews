@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Test News</string>
+    <string name="text_menu_top">Top headlines</string>
+    <string name="text_menu_all">Everything</string>
 </resources>
