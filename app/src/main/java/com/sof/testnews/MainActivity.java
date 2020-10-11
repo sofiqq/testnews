@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.view.MenuItem;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -20,19 +21,29 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     BottomNavigationView bottomNavigationView;
 
     FragmentTopheadliners fragmentTopheadliners;
-    FragmentEverything fragmentEverything;
+    FragmentTopheadliners fragmentEverything;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        if (savedInstanceState != null) {
+            //Restore the fragment's instance
+            fragmentTopheadliners = (FragmentTopheadliners) getSupportFragmentManager().getFragment(savedInstanceState, "fragmentTopheadliners");
+        }
         initUI();
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState, @NonNull PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        getSupportFragmentManager().putFragment(outState, "fragmentTopheadliners", fragmentTopheadliners);
     }
 
     public void initUI() {
         ButterKnife.bind(this);
-        fragmentEverything = new FragmentEverything();
-        fragmentTopheadliners = new FragmentTopheadliners();
+        fragmentEverything = new FragmentTopheadliners(1);
+        fragmentTopheadliners = new FragmentTopheadliners(0);
         loadFragment(fragmentTopheadliners);
         bottomNavigationView.setOnNavigationItemSelectedListener(this);
     }

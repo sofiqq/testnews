@@ -1,6 +1,11 @@
 package com.sof.testnews.models;
 
-public class News {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import java.io.Serializable;
+
+public class News implements Parcelable {
 
     public Source source;
     public String author;
@@ -23,6 +28,29 @@ public class News {
         this.publishedAt = publishedAt;
         this.content = content;
     }
+
+    protected News(Parcel in) {
+        source = in.readParcelable(Source.class.getClassLoader());
+        author = in.readString();
+        title = in.readString();
+        description = in.readString();
+        url = in.readString();
+        urlToImage = in.readString();
+        publishedAt = in.readString();
+        content = in.readString();
+    }
+
+    public static final Creator<News> CREATOR = new Creator<News>() {
+        @Override
+        public News createFromParcel(Parcel in) {
+            return new News(in);
+        }
+
+        @Override
+        public News[] newArray(int size) {
+            return new News[size];
+        }
+    };
 
     public Source getSource() {
         return source;
@@ -87,6 +115,25 @@ public class News {
     public void setContent(String content) {
         this.content = content;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+
+        dest.writeParcelable(source, flags);
+        dest.writeString(author);
+        dest.writeString(title);
+        dest.writeString(description);
+        dest.writeString(url);
+        dest.writeString(urlToImage);
+        dest.writeString(publishedAt);
+        dest.writeString(content);
+    }
+
 }
 
 
