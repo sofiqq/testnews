@@ -18,6 +18,9 @@ public class Constants {
         final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));   // This line converts the given date into UTC time zone
         java.util.Date dateObj = null;
+        if (utcDate == null) {
+            utcDate = "";
+        }
         try {
             dateObj = sdf.parse(utcDate);
         } catch (ParseException e) {

@@ -9,8 +9,14 @@ import android.os.PersistableBundle;
 import android.view.MenuItem;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.sof.testnews.fragments.FragmentFavorite;
 import com.sof.testnews.fragments.FragmentTopheadliners;
+import com.sof.testnews.models.News;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -22,6 +28,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
     FragmentTopheadliners fragmentTopheadliners;
     FragmentTopheadliners fragmentEverything;
+    Preferences preferences;
+
+    public ArrayList<News> savedNewsList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +40,10 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             //Restore the fragment's instance
             fragmentTopheadliners = (FragmentTopheadliners) getSupportFragmentManager().getFragment(savedInstanceState, "fragmentTopheadliners");
         }
+        preferences = new Preferences(this);
+        Gson gson = new Gson();
+        String json = preferences.getSavedNews();
+        savedNewsList = gson.fromJson(json, new TypeToken<List<News>>(){}.getType());
         initUI();
     }
 
@@ -42,8 +55,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
     public void initUI() {
         ButterKnife.bind(this);
-        fragmentEverything = new FragmentTopheadliners(1);
-        fragmentTopheadliners = new FragmentTopheadliners(0);
+        fragmentEverything = new FragmentTopheadliners(1, savedNewsList);
+        fragmentTopheadliners = new FragmentTopheadliners(0, savedNewsList);
         loadFragment(fragmentTopheadliners);
         bottomNavigationView.setOnNavigationItemSelectedListener(this);
     }
@@ -58,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 loadFragment(fragmentEverything);
                 break;
             case R.id.page_favorite:
-                FragmentFavorite fragmentFavorite = new FragmentFavorite();
+                FragmentFavorite fragmentFavorite = new FragmentFavorite(savedNewsList);
                 loadFragment(fragmentFavorite);
                 break;
         }

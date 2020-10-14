@@ -2,6 +2,7 @@ package com.sof.testnews.fragments;
 
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +15,11 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.sof.testnews.Preferences;
 import com.sof.testnews.models.News;
 import com.sof.testnews.adapters.NewsAdapter;
 import com.sof.testnews.PaginationScrollListener;
@@ -38,7 +43,7 @@ import static com.sof.testnews.Constants.LAST_PAGE_KEY;
 import static com.sof.testnews.Constants.NEWS_KEY;
 import static com.sof.testnews.Constants.TOTAL_PAGES_KEY;
 
-public class FragmentTopheadliners extends Fragment {
+public class FragmentTopheadliners extends Fragment implements SwipeRefreshLayout.OnRefreshListener{
 
     private NewsAdapter paginationAdapter;
     private TopHeadlinersService topHeadlinersService;
@@ -55,6 +60,9 @@ public class FragmentTopheadliners extends Fragment {
     @BindView(R.id.layout_loading)
     FrameLayout layoutLoading;
 
+    @BindView(R.id.refresh)
+    SwipeRefreshLayout mSwipeRefreshLayout;
+
     private static final int PAGE_START = 1;
     private boolean isLoading = false;
     private boolean isLastPage = false;
@@ -64,16 +72,23 @@ public class FragmentTopheadliners extends Fragment {
     private String topic;
 
     private NewsModel newsModel;
+    private ArrayList<News> savedNews;
+    private Preferences preferences;
+    private  Gson gson;
 
-    public FragmentTopheadliners(int type) {
+    public FragmentTopheadliners(int type, ArrayList<News> savedNews) {
         this.type = type;
+        this.savedNews = savedNews;
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.e("ASD", "FragmentTopheadliners onCreateView");
         View view = inflater.inflate(R.layout.fragment_top, null);
         initUI(view);
+        preferences = new Preferences(getActivity());
+        gson = new Gson();
         return view;
     }
 
@@ -108,16 +123,23 @@ public class FragmentTopheadliners extends Fragment {
                 topic = "everything";
                 break;
         }
+        mSwipeRefreshLayout.setOnRefreshListener(this);
         topHeadlinersService = ClientApi.getClient().create(TopHeadlinersService.class);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
-        paginationAdapter = new NewsAdapter(getActivity());
+        paginationAdapter = new NewsAdapter(getActivity(), savedNews);
         if (newsModel != null) {
+            Log.e("ASD", "FragmentTopheadliners initUI newsmodel != null");
+            Log.e("ASD", "FragmentTopheadliners initUI newsModel size = " + newsModel.getArticles().size());
+
             paginationAdapter.setData(newsModel.getArticles());
+            layoutContent.setVisibility(View.VISIBLE);
+            layoutLoading.setVisibility(View.GONE);
             if (currentPage < TOTAL_PAGES)
                 paginationAdapter.addLoadingFooter();
         }
         rvNews.setLayoutManager(linearLayoutManager);
         rvNews.setAdapter(paginationAdapter);
+        paginationAdapter.notifyDataSetChanged();
 
         rvNews.addOnScrollListener(new PaginationScrollListener(linearLayoutManager) {
             @Override
@@ -138,7 +160,7 @@ public class FragmentTopheadliners extends Fragment {
             }
         });
         if (newsModel == null)
-            loadFirstPage();
+            loadFirstPage(false);
     }
 
     private void loadNextPage() {
@@ -164,7 +186,8 @@ public class FragmentTopheadliners extends Fragment {
         });
     }
 
-    private void loadFirstPage() {
+    private void loadFirstPage(boolean closeSwipeRefresh) {
+        Log.e("ASD", "FragmentTopheadliners loadFirst page topic = " + topic);
         topHeadlinersService.getNews(topic, currentPage).enqueue(new Callback<NewsModel>() {
             @Override
             public void onResponse(Call<NewsModel> call, Response<NewsModel> response) {
@@ -173,11 +196,26 @@ public class FragmentTopheadliners extends Fragment {
                 int totalResults = response.body().getTotalResults();
                 TOTAL_PAGES = response.body().getTotalResults() / 5;
                 if (totalResults % 5 > 0) TOTAL_PAGES++;
-                newsModel = response.body();
+                if (closeSwipeRefresh && response.body() != null &&
+                        response.body().getArticles() != null &&
+                        response.body().getArticles().size() > 0 &&
+                        !response.body().getArticles().get(0).getTitle().equals(
+                                newsModel.getArticles().get(0).getTitle())) {
+                    newsModel = response.body();
+                    paginationAdapter.addAll(newsModel.getArticles());
+                    paginationAdapter.notifyDataSetChanged();
+                } else  if (!closeSwipeRefresh){
+                    newsModel = response.body();
+                    paginationAdapter.addAll(newsModel.getArticles());
+                    paginationAdapter.notifyDataSetChanged();
+                }
                 progressBar.setVisibility(View.GONE);
-                paginationAdapter.addAll(newsModel.getArticles());
                 if (currentPage <= TOTAL_PAGES) paginationAdapter.addLoadingFooter();
                 else isLastPage = true;
+                if (closeSwipeRefresh)
+                    mSwipeRefreshLayout.setRefreshing(false);
+
+
             }
 
             @Override
@@ -188,5 +226,16 @@ public class FragmentTopheadliners extends Fragment {
         });
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        String json = preferences.getSavedNews();
+        savedNews = gson.fromJson(json, new TypeToken<List<News>>(){}.getType());
+    }
 
+    @Override
+    public void onRefresh() {
+        mSwipeRefreshLayout.setRefreshing(true);
+        loadFirstPage(true);
+    }
 }

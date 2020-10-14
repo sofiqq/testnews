@@ -16,7 +16,6 @@ import com.google.gson.reflect.TypeToken;
 import com.sof.testnews.Preferences;
 import com.sof.testnews.R;
 import com.sof.testnews.adapters.FavoriteAdapter;
-import com.sof.testnews.adapters.NewsAdapter;
 import com.sof.testnews.models.News;
 
 import java.util.ArrayList;
@@ -34,10 +33,18 @@ public class FragmentFavorite extends Fragment {
     @BindView(R.id.rv_everything)
     RecyclerView rvNews;
 
+    ArrayList<News> savedNews;
+    private Gson gson;
+
+    public FragmentFavorite(ArrayList<News> savedNews) {
+        this.savedNews = savedNews;
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_everything, null);
+        View view = inflater.inflate(R.layout.fragment_favorites, null);
+        gson = new Gson();
         initUI(view);
         return view;
     }
@@ -49,9 +56,18 @@ public class FragmentFavorite extends Fragment {
         String json = preferences.getSavedNews();
         newsList = gson.fromJson(json, new TypeToken<List<News>>(){}.getType());
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
-        favoriteAdapter = new FavoriteAdapter(getActivity());
+        favoriteAdapter = new FavoriteAdapter(getActivity(), savedNews);
         favoriteAdapter.setData(newsList);
         rvNews.setLayoutManager(linearLayoutManager);
         rvNews.setAdapter(favoriteAdapter);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        String json = preferences.getSavedNews();
+        savedNews = gson.fromJson(json, new TypeToken<List<News>>(){}.getType());
+        favoriteAdapter.setData(savedNews);
+        favoriteAdapter.notifyDataSetChanged();
     }
 }

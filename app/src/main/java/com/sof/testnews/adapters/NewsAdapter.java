@@ -43,9 +43,11 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int LOADING = 0;
     private static final int ITEM = 1;
     private boolean isLoadingAdded = false;
+    private ArrayList<News> savedNews;
 
-    public NewsAdapter (Context context){
+    public NewsAdapter (Context context, ArrayList<News> savedNews){
         this.context = context;
+        this.savedNews = savedNews;
         newsList = new LinkedList<>();
         preferences = new Preferences(context);
     }
@@ -165,6 +167,7 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             News news = newsList.get(getAdapterPosition());
             Intent intent = new Intent(context, NewsActivity.class);
             intent.putExtra("news", news);
+            intent.putParcelableArrayListExtra("saved", savedNews);
             context.startActivity(intent);
             Log.e("ASD", news.getTitle());
         }

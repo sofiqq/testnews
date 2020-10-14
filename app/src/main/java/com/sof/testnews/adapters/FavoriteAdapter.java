@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.sof.testnews.Constants;
+import com.sof.testnews.MainActivity;
 import com.sof.testnews.NewsActivity;
 import com.sof.testnews.Preferences;
 import com.sof.testnews.R;
@@ -36,8 +37,11 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
     private Context context;
     private Preferences preferences;
 
-    public FavoriteAdapter (Context context){
+    private ArrayList<News> savedNews;
+
+    public FavoriteAdapter (Context context, ArrayList<News> savedNews){
         this.context = context;
+        this.savedNews = savedNews;
         preferences = new Preferences(context);
     }
 
@@ -87,6 +91,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
             News news = newsList.get(getAdapterPosition());
             Intent intent = new Intent(context, NewsActivity.class);
             intent.putExtra("news", news);
+            intent.putParcelableArrayListExtra("saved", savedNews);
             context.startActivity(intent);
         }
     }
